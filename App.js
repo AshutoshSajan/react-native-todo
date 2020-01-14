@@ -27,11 +27,43 @@ export default class App extends Component {
       focus: true,
       showMsg: '',
       edit: false,
-      todoEditId: ''
+      todoEditId: '',
+
+      url: 'http://localhost:8000/api/v1/users/login',
+      user : {
+        email: 'test_user@gmail.com',
+        password: 'qwerty123'
+      }
+
     };
 
     // this.interval();
   }
+
+  componentDidMount() {
+    const { url, user } = this.state;
+    this.fetchData(url, 'POST', user);
+  }
+
+  fetchData = (url, method='GET', data={}) => {
+    console.log('inside fetch data...');
+    
+    fetch(url, {
+      method: method,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(res => {
+      console.log(res, 'login response...')
+      res.json()
+    })
+    .then(user => console.log(user, 'login data...'))
+    .catch(err => console.log(err, 'login error...'));
+  }
+  
 
   interval = () => {
     setInterval(() => {
@@ -63,37 +95,41 @@ export default class App extends Component {
   };
 
   handleSubmit = async e => {
-    console.log(e, '\n\n', e.nativeEvent, "submit target....");
+    // console.log(e, '\n\n', e.nativeEvent, "submit target....");
     
     const { text } = e.nativeEvent;
-    const todos = [
-      {
-        ...this.state.todo,
-        id: Date.now(),
-        createdAt: new Date(),
-      },
-      ...this.state.todos,
-    ];
+    if(this.state.todo.todoText.trim()){
+      const todos = [
+        {
+          ...this.state.todo,
+          id: Date.now(),
+          createdAt: new Date(),
+        },
+        ...this.state.todos,
+      ];
 
-    await this.setState({
-      todos,
-      todo: {
-        ...this.state.todo,
-        todoText: '',
-      },
-    });
+      await this.setState({
+        todos,
+        todo: {
+          ...this.state.todo,
+          todoText: '',
+        },
+      });
 
-    if (this.state.todos.length) {
-      await this.setLocalStorage('todos', this.state.todos);
+      if (this.state.todos.length) {
+        await this.setLocalStorage('todos', this.state.todos);
+      }
+    } else {
+      return;
     }
   };
 
   setLocalStorage = (key, data) => {
     AsyncStorage.setItem(key, JSON.stringify(data))
       .then(todos => {
-        console.log(todos, 'success!');
+        console.log(todos, 'asysn storage todod set success!');
       })
-      .catch(err => console.log(err, "err setting todos..."));
+      .catch(err => console.log(err, "err setting todos in async storage..."));
   };
 
   handleDelete = async id => {
@@ -108,12 +144,12 @@ export default class App extends Component {
     AsyncStorage.getItem(todos)
       .then(res => JSON.parse(res))
       .then(data => {
-        console.log('asyn todos...');
+        console.log('get async storage todos...');
         if (data) {
           this.setState({ [todos]: data });
         };
       })
-      .catch(err => console.log(err, "err getting todos..."));
+      .catch(err => console.log(err, "err getting async storage todos..."));
   };
 
   showTodoCreationDate = ( createdAt, updatedAt) => {
@@ -121,16 +157,11 @@ export default class App extends Component {
     let time = this.getDateTime('time', createdAt);
 
     if(createdAt && updatedAt) {
-      // let date = this.getDateTime('date', createdAt);
-      // let time = this.getDateTime('time', createdAt);
-
       let updateDate = this.getDateTime('date', updatedAt);
       let updateTime = this.getDateTime('time', updatedAt);
 
       alert('Created At \n' + date + '\nAt ' + time + '\n\nAnd Updated At\n' + updateDate + '\n' + updateTime);
     } else if (createdAt){
-      // let date = this.getDateTime('date', createdAt);
-      // let time = this.getDateTime('time', createdAt);
       alert('Created At \n' + date + '\nAt ' + time);
     } else if(!createdAt || !updatedAt ){
       let error = 'Error... \n Sorry No todo creation date available 😞';
@@ -229,6 +260,7 @@ export default class App extends Component {
                       onChangeText={
                         (e) => this.handleEditChange(e, todo.id)
                       }
+                      onSubmitEditing={ this.handleSubmit }
                     />
                   :
                     <View
@@ -265,7 +297,6 @@ export default class App extends Component {
                         {todo.todoText}
                       </Text>
 
-                    
                       <View
                         style={{
                           display: 'flex',
