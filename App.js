@@ -33,8 +33,11 @@ export default class App extends Component {
       user : {
         email: 'test_user@gmail.com',
         password: 'qwerty123'
+      },
+      editedTodo: {
+        previousValue: '',
+        id: '',
       }
-
     };
 
     // this.interval();
@@ -94,33 +97,67 @@ export default class App extends Component {
     this.setLocalStorage('todos', todos);
   };
 
-  handleSubmit = async e => {
-    // console.log(e, '\n\n', e.nativeEvent, "submit target....");
-    
+  handleSubmit = async (e, btn) => {    
+    const name = e._dispatchInstances.pendingProps.name;
     const { text } = e.nativeEvent;
-    if(this.state.todo.todoText.trim()){
-      const todos = [
-        {
-          ...this.state.todo,
-          id: Date.now(),
-          createdAt: new Date(),
-        },
-        ...this.state.todos,
-      ];
+        
+    let addTodo = async () => {
+      
+      if(this.state.todo.todoText.trim()){
+        const todos = [
+          {
+            ...this.state.todo,
+            id: Date.now(),
+            todoText: this.state.todo.todoText,
+            createdAt: new Date(),
+          },
+          ...this.state.todos,
+        ];
 
-      await this.setState({
-        todos,
-        todo: {
-          ...this.state.todo,
-          todoText: '',
-        },
-      });
+        await this.setState({
+          todos: todos,
+          todo: {
+            ...this.state.todo,
+            todoText: '',
+          },
+        });
 
-      if (this.state.todos.length) {
-        await this.setLocalStorage('todos', this.state.todos);
+        if (this.state.todos.length) {
+          await this.setLocalStorage('todos', this.state.todos);
+        }
+      } else {
+        return;
       }
-    } else {
-      return;
+    }
+
+    if(e._dispatchInstances.pendingProps.name === 'editInput'){
+
+      if(text){
+        addTodo();
+      }
+      if(!text){
+        
+        const todos = this.state.todos.map(todo => {
+          if(todo.id === this.state.editedTodo.id){
+            return {
+              ...todo,
+              todoText: this.state.editedTodo.previousValue
+            }
+          } else {
+            return todo;
+          }
+        })
+
+        await this.setState({
+          todos: todos,
+        });
+
+        if (this.state.todos.length) {
+          await this.setLocalStorage('todos', this.state.todos);
+        }
+      }
+    } else if(e._dispatchInstances.pendingProps.name === 'todoText' || btn){
+      addTodo();
     }
   };
 
@@ -183,7 +220,7 @@ export default class App extends Component {
     this.setState({ edit: !this.edit, todoEditId: id });
   }
 
-  handleEditChange = async (e, id) => {
+  handleEditChange = async (e, id) => {    
     const todos = this.state.todos.map((todo) => {
       if(todo.id === id){
         return {
@@ -192,7 +229,7 @@ export default class App extends Component {
           updatedAt: new Date()
         }
       } else {
-        return todo
+        return todo;
       }
     })
     await this.setState({ todos });
@@ -220,6 +257,7 @@ export default class App extends Component {
             }}
             value={ todo.todoText }
             // autoFocus={focus}
+            id="todoText"
             name="todoText"
             onChangeText={ this.handleChange }
             placeholder="ADD TODO..."
@@ -230,7 +268,7 @@ export default class App extends Component {
             style={{
               flex: 4,
             }}
-            onPress={this.handleSubmit}
+            onPress={(e) => this.handleSubmit(e, 'btn')}
           />
         </View>
 
@@ -254,7 +292,19 @@ export default class App extends Component {
                         flex: 1,
                       }}
                       value={ todo.todoText }
+                      id='editInput'
                       name='editInput'
+                      onFocus={
+                        () => {
+                          this.setState({
+                            editedTodo: {
+                              previousValue: todo.todoText,
+                              id: todo.id
+                            }
+                          })
+                        }
+                      }
+
                       autoFocus={focus}
                       onBlur={() => this.setState({ edit: !edit })}
                       onChangeText={
