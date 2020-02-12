@@ -6,7 +6,8 @@ import {
   Switch,
   AsyncStorage,
   Button,
-  ScrollView
+  ScrollView,
+  CheckBox
 } from 'react-native';
 
 export default class App extends Component {
@@ -320,9 +321,10 @@ export default class App extends Component {
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        alignItems:'center'
                       }}  
                     >
-                      <Switch
+                      <CheckBox
                         value={ todo.isDone }
                         onChange={() => this.handleToggle(todo.id)}
                       />
