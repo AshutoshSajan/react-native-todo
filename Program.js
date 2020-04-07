@@ -28,8 +28,8 @@ const App = () => {
   return (
     <View style={style.container}>
       <View style={style.header}>
-        <Text style={style.logo}>Program</Text>
-        <Text style={style.title}>social medeia app for Programmers</Text>
+        <Text style={style.logo}>TodoApp</Text>
+        <Text style={style.title}>social medeia app for TodoAppmers</Text>
       </View>
       <StoryContainer />
       <PostContainer />
@@ -63,20 +63,30 @@ class PostFooter extends React.Component {
 
   handleOnPress = e => {
     console.log(e.target);
-    this.setState({ clicked: !this.state.clicked });
+    this.setState({clicked: !this.state.clicked});
   };
 
   render() {
-    let { clicked } = this.state;
+    let {clicked} = this.state;
     return (
       <View style={style.postFooter}>
-        <Text style={clicked ? style.capitalText : null }
-          onPress={this.handleOnPress}>like : 👍</Text>
-        <Text style={clicked ? style.capitalText : null }
-          onPress={this.handleOnPress}>comment: 📥</Text>
-        <Text style={clicked ? style.capitalText : null }
-          onPress={this.handleOnPress}>share: 😎</Text>
-        <Text style={clicked ? style.capitalText : null }
+        <Text
+          style={clicked ? style.capitalText : null}
+          onPress={this.handleOnPress}>
+          like : 👍
+        </Text>
+        <Text
+          style={clicked ? style.capitalText : null}
+          onPress={this.handleOnPress}>
+          comment: 📥
+        </Text>
+        <Text
+          style={clicked ? style.capitalText : null}
+          onPress={this.handleOnPress}>
+          share: 😎
+        </Text>
+        <Text
+          style={clicked ? style.capitalText : null}
           onPress={this.handleOnPress}>
           favourite: 💟
         </Text>
@@ -88,11 +98,11 @@ class PostFooter extends React.Component {
 function StoryContainer() {
   return (
     <View style={style.storyContainer}>
-      <Text style={style.storyItem}>Program</Text>
-      <Text style={style.storyItem}>Program</Text>
-      <Text style={style.storyItem}>Program</Text>
-      <Text style={style.storyItem}>Program</Text>
-      <Text style={style.storyItem}>Program</Text>
+      <Text style={style.storyItem}>TodoApp</Text>
+      <Text style={style.storyItem}>TodoApp</Text>
+      <Text style={style.storyItem}>TodoApp</Text>
+      <Text style={style.storyItem}>TodoApp</Text>
+      <Text style={style.storyItem}>TodoApp</Text>
     </View>
   );
 }
